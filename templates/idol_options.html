@@ -12,24 +12,47 @@
         .size-options, .pattern-options { margin-top: 20px; }
         .size-card, .pattern-card { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
         .price { color: #E91E63; font-weight: bold; font-size: 1.2em; }
-        .btn { background: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; display: inline-block; margin-top: 10px; }
+        .btn { background: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; display: inline-block; margin-top: 10px; border: none; cursor: pointer; }
         .material-tag { 
             color: white; 
             padding: 3px 8px; 
             border-radius: 4px;
             font-size: 0.8em;
         }
+        .POP { background-color: #FF9800; }
+        .Shadu { background-color: #795548; }
+        .flash-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
+    <!-- Flash messages display -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
     <h1>{{ idol.name }} 
-        <span class="material-tag" style="background: '{% if material == 'POP' %}#FF9800{% else %}#795548{% endif %}';">
+        <span class="material-tag {{ material }}">
             {{ material }}
         </span>
     </h1>
     <div class="container">
         <div class="main-img">
-            <img src="{{ url_for('static', filename='images/' + sizes[0].image) }}" width="100%">
+            <img src="{{ url_for('static', filename='images/' + (sizes[0].image if sizes[0].image else 'default.jpg')) }}" width="100%">
         </div>
         
         <div class="options">
@@ -39,22 +62,12 @@
                 <div class="size-card">
                     <h3>{{ size.size }}</h3>
                     <p class="price">₹{{ size.price }}</p>
-                    <button onclick="addToCart('{{ idol.id }}', '{{ material }}', '{{ size.size }}')" 
-                            class="btn cart-btn">
-                        Add to Cart
-                    </button>
-                    <script>
-                    function addToCart(idolId, material, size) {
-                        fetch(`/add_to_cart/${idolId}/${material}/${size}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Open checkout in new window
-                                window.open('/checkout', '_blank');
-                            }
-                        });
-                    }
-                    </script>
+                    <form method="POST" action="{{ url_for('add_to_cart') }}">
+                    <input type="hidden" name="idol_id" value="{{ idol.id }}">
+                    <input type="hidden" name="material" value="{{ material }}">
+                    <input type="hidden" name="size" value="{{ size.size }}">
+                    <button type="submit" class="btn">Add to Cart</button>
+                    </form>
                 </div>
                 {% endfor %}
             </div>
@@ -64,23 +77,11 @@
                 {% for pattern in patterns %}
                 <div class="pattern-card">
                     <h3>{{ pattern.name }}</h3>
-                    <img src="{{ url_for('static', filename='patterns/' + pattern.image) }}" width="100px">
+                    <img src="{{ url_for('static', filename='images/' + (pattern.image if pattern.image else 'default.jpg')) }}" width="100%">
                 </div>
                 {% endfor %}
             </div>
         </div>
     </div>
 </body>
-<script>
-function addToCart(idolId, material, size) {
-    fetch(`/add_to_cart/${idolId}/${material}/${size}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Open checkout in new window
-                window.open('/checkout', '_blank');
-            }
-        });
-}
-</script>
 </html>

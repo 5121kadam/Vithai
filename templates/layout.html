@@ -1,0 +1,23 @@
+<div class="user-nav">
+    {% if current_user.is_authenticated %}
+    <a href="{{ url_for('logout') }}" class="logout-btn">
+        <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+    {% endif %}
+</div>
+
+<style>
+    .user-nav {
+        text-align: right;
+        padding: 10px 20px;
+        background-color: #f5f5f5;
+    }
+    .logout-btn {
+        color: #d32f2f;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .logout-btn:hover {
+        text-decoration: underline;
+    }
+</style>
