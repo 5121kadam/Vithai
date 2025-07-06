@@ -1,0 +1,47 @@
+<!-- templates/catalog.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ganesh Idols Catalog</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        h1 { color: #4CAF50; text-align: center; }
+        .idol-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; margin-top: 30px; }
+        .idol-card { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+        .idol-img { width: 100%; height: 200px; object-fit: cover; }
+        .idol-info { padding: 15px; }
+        .material-btns { display: flex; margin-top: 10px; }
+        .btn { flex: 1; padding: 8px; text-align: center; background: #4CAF50; color: white; text-decoration: none; border-radius: 4px; margin: 0 2px; }
+        .btn.pop { background: #FF9800; }
+        .btn.shadu { background: #795548; }
+    </style>
+</head>
+<body>
+    <h1>Choose Your Divine Ganesh Idol</h1>
+    
+    <div class="idol-grid">
+        {% for idol in idols %}
+        <div class="idol-card">
+            {% if idol.sizes|length > 0 %}
+            <img src="{{ url_for('static', filename='images/' + idol.sizes[0].image) }}" class="idol-img">
+            {% else %}
+            <img src="{{ url_for('static', filename='images/default.jpg') }}" class="idol-img">
+            {% endif %}
+            <div class="idol-info">
+                <h3>{{ idol.name }}</h3>
+                
+                <div class="material-btns">
+                    {% if idol.material == 'POP' or idol.material == 'Both' %}
+                    <a href="{{ url_for('idol_material', idol_id=idol.id, material='POP') }}" class="btn pop">POP</a>
+                    {% endif %}
+                    
+                    {% if idol.material == 'Shadu' or idol.material == 'Both' %}
+                    <a href="{{ url_for('idol_material', idol_id=idol.id, material='Shadu') }}" class="btn shadu">Shadu</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

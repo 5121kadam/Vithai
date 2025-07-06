@@ -1,0 +1,37 @@
+<!-- templates/register.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register - Ganesh Idols</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        h1 { color: #4CAF50; text-align: center; }
+        form { background: #f9f9f9; padding: 20px; border-radius: 8px; }
+        label { display: block; margin-top: 10px; }
+        input, textarea { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #4CAF50; color: white; border: none; padding: 10px 15px; margin-top: 15px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Divine Ganesh Idols</h1>
+    <form method="POST">
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    
+    <label for="name">Full Name:</label>
+    <input type="text" id="name" name="name" value="{{ form_data.name if form_data }}" required>
+    
+    <label for="phone">Phone Number:</label>
+    <input type="tel" id="phone" name="phone" value="{{ form_data.phone if form_data }}" required>
+    
+    <label for="email">Email (Optional):</label>
+    <input type="email" id="email" name="email" value="{{ form_data.email if form_data and form_data.email }}">
+    
+    <label for="address">Delivery Address:</label>
+    <textarea id="address" name="address" rows="4" required>{{ form_data.address if form_data }}</textarea>
+    
+    <button type="submit">Continue to Catalog</button>
+</form>
+</body>
+</html>
