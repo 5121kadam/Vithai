@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Contact Dealer - Divine Ganesh Idols</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .contact-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #2E7D32;
+            margin-bottom: 30px;
+        }
+        .contact-option {
+            display: block;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: transform 0.3s;
+        }
+        .contact-option:hover {
+            transform: translateY(-3px);
+        }
+        .whatsapp {
+            background: #25D366;
+            color: white;
+        }
+        .phone {
+            background: #2E7D32;
+            color: white;
+        }
+        .icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        .note {
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="contact-container">
+        <h1>Contact Our Dealer</h1>
+        <p>Please choose your preferred contact method to complete your purchase:</p>
+        
+        <a href="{{ whatsapp_url }}" class="contact-option whatsapp">
+            <i class="fab fa-whatsapp icon"></i> Chat via WhatsApp
+        </a>
+        
+        <a href="tel:{{ phone_number }}" class="contact-option phone">
+            <i class="fas fa-phone-alt icon"></i> Call the Dealer
+        </a>
+        
+        <div class="note">
+            <p>Our dealer will assist you with payment options and delivery details.</p>
+            <p>Standard business hours: 9AM-7PM (Mon-Sat)</p>
+        </div>
+    </div>
+</body>
+</html>

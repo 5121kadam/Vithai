@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Checkout - Divine Ganesh Idols</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .checkout-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2E7D32;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .cart-item {
+            display: flex;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+        .cart-item-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 20px;
+        }
+        .item-details {
+            flex-grow: 1;
+        }
+        .item-price {
+            font-weight: bold;
+            color: #2E7D32;
+        }
+        .total-section {
+            text-align: right;
+            margin-top: 20px;
+            font-size: 1.2rem;
+            padding-top: 20px;
+            border-top: 2px solid #2E7D32;
+        }
+        .proceed-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: #2E7D32;
+            color: white;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            margin-top: 30px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .proceed-btn:hover {
+            background: #1B5E20;
+        }
+    </style>
+</head>
+<body>
+    <div class="checkout-container">
+        <h1>Your Order Summary</h1>
+        
+        {% for item in cart %}
+        <div class="cart-item">
+            <img src="{{ url_for('static', filename='images/' + item.image) }}" class="cart-item-img" alt="{{ item.name }}">
+            <div class="item-details">
+                <h3>{{ item.name }}</h3>
+                <p>{{ item.material }} • {{ item.size }}</p>
+            </div>
+            <div class="item-price">₹{{ item.price }}</div>
+        </div>
+        {% endfor %}
+        
+        <div class="total-section">
+            <strong>Total: ₹{{ total }}</strong>
+        </div>
+        
+        <a href="{{ url_for('initiate_contact') }}" class="proceed-btn">Proceed to Contact Dealer</a>
+    </div>
+</body>
+</html>

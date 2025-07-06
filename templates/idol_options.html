@@ -39,7 +39,22 @@
                 <div class="size-card">
                     <h3>{{ size.size }}</h3>
                     <p class="price">₹{{ size.price }}</p>
-                    <a href="#" class="btn">Add to Cart</a>
+                    <button onclick="addToCart('{{ idol.id }}', '{{ material }}', '{{ size.size }}')" 
+                            class="btn cart-btn">
+                        Add to Cart
+                    </button>
+                    <script>
+                    function addToCart(idolId, material, size) {
+                        fetch(`/add_to_cart/${idolId}/${material}/${size}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Open checkout in new window
+                                window.open('/checkout', '_blank');
+                            }
+                        });
+                    }
+                    </script>
                 </div>
                 {% endfor %}
             </div>
@@ -56,4 +71,16 @@
         </div>
     </div>
 </body>
+<script>
+function addToCart(idolId, material, size) {
+    fetch(`/add_to_cart/${idolId}/${material}/${size}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Open checkout in new window
+                window.open('/checkout', '_blank');
+            }
+        });
+}
+</script>
 </html>
