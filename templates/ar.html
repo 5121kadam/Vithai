@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AR Experience</title>
+    <style>
+        #camera-container { position: relative; width: 100%; max-width: 800px; }
+        #camera, #preview { width: 100%; border: 2px solid #333; }
+        #idol-overlay { position: absolute; max-height: 200px; transform-origin: bottom center; }
+        .controls { margin: 15px 0; padding: 10px; background: #f5f5f5; }
+        .slider-container { margin: 10px 0; }
+        .btn { background: #4CAF50; color: white; border: none; padding: 10px 15px; 
+               border-radius: 5px; cursor: pointer; font-size: 16px; margin-right: 10px; }
+        #loading { display: none; position: fixed; top: 0; left: 0; width: 100%; 
+                  height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+        .spinner { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                  color: white; font-size: 24px; }
+    </style>
+</head>
+<body>
+    <h1>Try {{ idol.name }} in Your Space</h1>
+    
+    <div id="camera-container">
+        <video id="camera" autoplay playsinline></video>
+        <canvas id="preview" style="display:none;"></canvas>
+        <img id="idol-overlay" src="/get_idol/{{ idol.id }}">
+    </div>
+    
+    <div class="controls">
+        <div class="slider-container">
+            <label>Size: <span id="scale-value">30%</span></label>
+            <input type="range" id="scale" min="0.1" max="0.5" step="0.05" value="0.3">
+        </div>
+        <button id="capture-btn" class="btn">Capture Wall</button>
+        <button id="process-btn" class="btn" style="display:none;">Generate Divine View</button>
+    </div>
+    
+    <div id="result-container" style="margin-top:20px; display:none;">
+        <h2>Your Divine Ganesh</h2>
+        <img id="result-image" style="max-width:100%; border:10px solid #d4af37;">
+        <button id="print-btn" class="btn">Print Blessing</button>
+    </div>
+    
+    <div id="loading">
+        <div class="spinner">Creating your divine experience...</div>
+    </div>
+    
+    <script>
+        const video = document.getElementById('camera');
+        const canvas = document.getElementById('preview');
+        const ctx = canvas.getContext('2d');
+        const idolImg = document.getElementById('idol-overlay');
+        const scaleSlider = document.getElementById('scale');
+        const scaleValue = document.getElementById('scale-value');
+        const captureBtn = document.getElementById('capture-btn');
+        const processBtn = document.getElementById('process-btn');
+        const resultContainer = document.getElementById('result-container');
+        const resultImage = document.getElementById('result-image');
+        const loading = document.getElementById('loading');
+        const printBtn = document.getElementById('print-btn');
+        
+        let isPositioning = false;
+        let currentIdolId = {{ idol.id }};
+
+        // Camera setup
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+                video.onloadedmetadata = () => {
+                    // Position idol at bottom center initially
+                    positionIdol(video.clientWidth/2, video.clientHeight);
+                };
+            })
+            .catch(err => console.error("Camera error: ", err));
+
+        // Idol positioning
+        video.addEventListener('click', e => {
+            if(!isPositioning) return;
+            positionIdol(e.offsetX, e.offsetY);
+        });
+
+        // Size adjustment
+        scaleSlider.addEventListener('input', () => {
+            const scale = parseFloat(scaleSlider.value);
+            scaleValue.textContent = `${Math.round(scale * 100)}%`;
+            idolImg.style.transform = `scale(${scale})`;
+        });
+
+        // Capture button
+        captureBtn.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+            
+            video.style.display = 'none';
+            canvas.style.display = 'block';
+            isPositioning = true;
+            processBtn.style.display = 'inline-block';
+            captureBtn.textContent = 'Recapture';
+        });
+
+        // Process button
+        processBtn.addEventListener('click', async () => {
+            loading.style.display = 'block';
+            
+            try {
+                // Get position data
+                const rect = canvas.getBoundingClientRect();
+                const x = parseFloat(idolImg.dataset.x);
+                const y = parseFloat(idolImg.dataset.y);
+                const scale = parseFloat(scaleSlider.value);
+                
+                // Prepare form data
+                const formData = new FormData();
+                formData.append('idol_id', currentIdolId);
+                formData.append('x', x);
+                formData.append('y', y);
+                formData.append('scale', scale);
+                
+                // Add canvas image
+                canvas.toBlob(blob => {
+                    formData.append('wall', blob, 'wall.jpg');
+                    
+                    // Submit to server
+                    fetch('/process', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Server error');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
+                        
+                        // Display result
+                        resultImage.src = data.result;
+                        resultContainer.style.display = 'block';
+                        window.scrollTo({
+                            top: document.body.scrollHeight,
+                            behavior: 'smooth'
+                        });
+                    })
+                    .catch(error => {
+                        alert(`Error: ${error.message}`);
+                    })
+                    .finally(() => {
+                        loading.style.display = 'none';
+                    });
+                }, 'image/jpeg');
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+                loading.style.display = 'none';
+            }
+        });
+
+        // Print button
+        printBtn.addEventListener('click', () => {
+            window.print();
+        });
+
+        function positionIdol(x, y) {
+            const container = document.getElementById('camera-container');
+            const rect = container.getBoundingClientRect();
+            
+            // Calculate relative position (0-1)
+            const relX = (x - rect.left) / rect.width;
+            const relY = (y - rect.top) / rect.height;
+            
+            // Position the overlay
+            idolImg.style.left = `${x - idolImg.width/2}px`;
+            idolImg.style.top = `${y - idolImg.height}px`;
+            
+            // Store position data
+            idolImg.dataset.x = relX;
+            idolImg.dataset.y = relY;
+        }
+    </script>
+</body>
+</html>
